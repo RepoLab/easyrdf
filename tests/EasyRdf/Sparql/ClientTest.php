@@ -606,4 +606,27 @@ class ClientTest extends TestCase
 
         return $types;
     }
+
+    /**
+     * @see https://github.com/sweetrdf/easyrdf/pull/48
+     */
+    public function testIssue47CorrectHeaderForConstructQueries(): void
+    {
+        Http::setDefaultHttpClient(new HttpClient());
+
+        $endpointUrl = 'https://dbpedia.org/sparql';
+        $dummyConstructQueryString = 'construct { ?s ?q ?r } where { ?s ?p ?o . ?o ?q ?r } limit 1';
+        $endPoint = new Client($endpointUrl);
+        $result = $endPoint->query($dummyConstructQueryString);
+
+        // its also an instance of Graph without the changes in this PR
+        $this->assertTrue($result instanceof Graph);
+
+        $endpointUrl = 'https://query.wikidata.org/sparql';
+        $endPoint = new Client($endpointUrl);
+        $result = $endPoint->query($dummyConstructQueryString);
+
+        // its an instance of Result without the changes in this PR
+        $this->assertTrue($result instanceof Graph);
+    }
 }
